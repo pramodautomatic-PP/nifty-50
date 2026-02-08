@@ -5,37 +5,67 @@
 indicator("Nifty Top 10 Stocks Table & Breadth", overlay=true)
 
 // === Inputs: Symbols and Weights ===
-group_1 = "Stock 1", s0 = input.symbol("NSE:RELIANCE", "Symbol", group=group_1), w0 = input.float(9.12, "Weight (%)", group=group_1)
-group_2 = "Stock 2", s1 = input.symbol("NSE:HDFCBANK", "Symbol", group=group_2), w1 = input.float(8.08, "Weight (%)", group=group_2)
-group_3 = "Stock 3", s2 = input.symbol("NSE:ICICIBANK", "Symbol", group=group_3), w2 = input.float(7.96, "Weight (%)", group=group_3)
-group_4 = "Stock 4", s3 = input.symbol("NSE:INFY", "Symbol", group=group_4), w3 = input.float(5.71, "Weight (%)", group=group_4)
-group_5 = "Stock 5", s4 = input.symbol("NSE:TCS", "Symbol", group=group_5), w4 = input.float(4.28, "Weight (%)", group=group_5)
-group_6 = "Stock 6", s5 = input.symbol("NSE:ITC", "Symbol", group=group_6), w5 = input.float(4.19, "Weight (%)", group=group_6)
-group_7 = "Stock 7", s6 = input.symbol("NSE:LT", "Symbol", group=group_7), w6 = input.float(4.11, "Weight (%)", group=group_7)
-group_8 = "Stock 8", s7 = input.symbol("NSE:SBIN", "Symbol", group=group_8), w7 = input.float(3.48, "Weight (%)", group=group_8)
-group_9 = "Stock 9", s8 = input.symbol("NSE:BHARTIARTL", "Symbol", group=group_9), w8 = input.float(3.32, "Weight (%)", group=group_9)
-group_10 = "Stock 10", s9 = input.symbol("NSE:AXISBANK", "Symbol", group=group_10), w9 = input.float(3.31, "Weight (%)", group=group_10)
+// Weights are kept in inputs as requested previously, but removed from the table display.
+group_1 = "Stock 1"
+s0 = input.symbol("NSE:RELIANCE", "Symbol", group=group_1)
+w0 = input.float(9.12, "Weight (%)", group=group_1)
+
+group_2 = "Stock 2"
+s1 = input.symbol("NSE:HDFCBANK", "Symbol", group=group_2)
+w1 = input.float(8.08, "Weight (%)", group=group_2)
+
+group_3 = "Stock 3"
+s2 = input.symbol("NSE:ICICIBANK", "Symbol", group=group_3)
+w2 = input.float(7.96, "Weight (%)", group=group_3)
+
+group_4 = "Stock 4"
+s3 = input.symbol("NSE:INFY", "Symbol", group=group_4)
+w3 = input.float(5.71, "Weight (%)", group=group_4)
+
+group_5 = "Stock 5"
+s4 = input.symbol("NSE:TCS", "Symbol", group=group_5)
+w4 = input.float(4.28, "Weight (%)", group=group_5)
+
+group_6 = "Stock 6"
+s5 = input.symbol("NSE:ITC", "Symbol", group=group_6)
+w5 = input.float(4.19, "Weight (%)", group=group_6)
+
+group_7 = "Stock 7"
+s6 = input.symbol("NSE:LT", "Symbol", group=group_7)
+w6 = input.float(4.11, "Weight (%)", group=group_7)
+
+group_8 = "Stock 8"
+s7 = input.symbol("NSE:SBIN", "Symbol", group=group_8)
+w7 = input.float(3.48, "Weight (%)", group=group_8)
+
+group_9 = "Stock 9"
+s8 = input.symbol("NSE:BHARTIARTL", "Symbol", group=group_9)
+w8 = input.float(3.32, "Weight (%)", group=group_9)
+
+group_10 = "Stock 10"
+s9 = input.symbol("NSE:AXISBANK", "Symbol", group=group_10)
+w9 = input.float(3.31, "Weight (%)", group=group_10)
 
 // === Fetch data for each symbol ===
 getData(sym) =>
-    [d_c, d_pc, d_o] = request.security(sym, "D", [close, close[1], open])
+    [d_c, d_pc, d_o, desc] = request.security(sym, "D", [close, close[1], open, syminfo.description])
     h_pc = request.security(sym, "60", close[1])
-    [d_c, d_pc, d_o, h_pc]
+    [d_c, d_pc, d_o, h_pc, desc]
 
-[c0, p0, o0, h0] = getData(s0)
-[c1, p1, o1, h1] = getData(s1)
-[c2, p2, o2, h2] = getData(s2)
-[c3, p3, o3, h3] = getData(s3)
-[c4, p4, o4, h4] = getData(s4)
-[c5, p5, o5, h5] = getData(s5)
-[c6, p6, o6, h6] = getData(s6)
-[c7, p7, o7, h7] = getData(s7)
-[c8, p8, o8, h8] = getData(s8)
-[c9, p9, o9, h9] = getData(s9)
+[c0, p0, o0, h0, d0] = getData(s0)
+[c1, p1, o1, h1, d1] = getData(s1)
+[c2, p2, o2, h2, d2] = getData(s2)
+[c3, p3, o3, h3, d3] = getData(s3)
+[c4, p4, o4, h4, d4] = getData(s4)
+[c5, p5, o5, h5, d5] = getData(s5)
+[c6, p6, o6, h6, d6] = getData(s6)
+[c7, p7, o7, h7, d7] = getData(s7)
+[c8, p8, o8, h8, d8] = getData(s8)
+[c9, p9, o9, h9, d9] = getData(s9)
 
 // === Store data in arrays ===
 symbols = array.from(s0, s1, s2, s3, s4, s5, s6, s7, s8, s9)
-weights = array.from(w0, w1, w2, w3, w4, w5, w6, w7, w8, w9)
+names = array.from(d0, d1, d2, d3, d4, d5, d6, d7, d8, d9)
 prices = array.from(c0, c1, c2, c3, c4, c5, c6, c7, c8, c9)
 prev_closes = array.from(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9)
 opens = array.from(o0, o1, o2, o3, o4, o5, o6, o7, o8, o9)
@@ -61,7 +91,7 @@ plotshape(is_80_pos, "80% Positive Breadth", shape.triangleup, location.belowbar
 plotshape(is_80_neg, "80% Negative Breadth", shape.triangledown, location.abovebar, color.new(color.red, 0), size=size.small)
 
 // === Create table ===
-// 6 columns: Rank, Symbol, Weight, % Chg (Day), % Chg (Open), % Chg (1H)
+// 6 columns: Rank, Symbol, Name, % Chg (Day), % Chg (Open), % Chg (1H)
 var table t = table.new(position.top_right, 6, 11, border_width = 1, border_color = color.gray)
 
 // === Update table on the last bar ===
@@ -69,7 +99,7 @@ if barstate.islast
     // Header
     table.cell(t, 0, 0, "Rank", text_color=color.white, bgcolor=color.blue)
     table.cell(t, 1, 0, "Symbol", text_color=color.white, bgcolor=color.blue)
-    table.cell(t, 2, 0, "Weight (%)", text_color=color.white, bgcolor=color.blue)
+    table.cell(t, 2, 0, "Name", text_color=color.white, bgcolor=color.blue)
     table.cell(t, 3, 0, "% Chg (Day)", text_color=color.white, bgcolor=color.blue)
     table.cell(t, 4, 0, "% Chg (Open)", text_color=color.white, bgcolor=color.blue)
     table.cell(t, 5, 0, "% Chg (1H)", text_color=color.white, bgcolor=color.blue)
@@ -77,7 +107,7 @@ if barstate.islast
     // Loop through stocks and fill table
     for i = 0 to 9
         sym = array.get(symbols, i)
-        weight = array.get(weights, i)
+        name = array.get(names, i)
         curr_price = array.get(prices, i)
 
         // 1. % Change from Previous Day
@@ -95,7 +125,7 @@ if barstate.islast
         // Fill table cells
         table.cell(t, 0, i+1, str.tostring(i+1), text_color=color.white)
         table.cell(t, 1, i+1, str.replace(sym, "NSE:", ""), text_color=color.white)
-        table.cell(t, 2, i+1, str.tostring(weight, "#.##"), text_color=color.white)
+        table.cell(t, 2, i+1, name, text_color=color.white, text_halign=text.align_left)
 
         table.cell(t, 3, i+1, str.tostring(chg_day, format.percent), text_color = chg_day >= 0 ? color.green : color.red)
         table.cell(t, 4, i+1, str.tostring(chg_open, format.percent), text_color = chg_open >= 0 ? color.green : color.red)
