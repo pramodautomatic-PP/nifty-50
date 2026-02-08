@@ -10,50 +10,64 @@ s5 = "NSE:ITC", s6 = "NSE:LT", s7 = "NSE:SBIN", s8 = "NSE:BHARTIARTL", s9 = "NSE
 
 // === Fetch data for each symbol ===
 // Note: request.security must be called at the global scope in Pine Script v5.
-// We fetch both current close and previous day's close in one call for efficiency.
-// On a lower timeframe, 'D' timeframe 'close' is the current day's price and 'close[1]' is yesterday's close.
+// We fetch daily close, previous daily close, daily open, and previous 1-hour close.
 getData(sym) =>
-    request.security(sym, "D", [close, close[1]])
+    [d_c, d_pc, d_o] = request.security(sym, "D", [close, close[1], open])
+    h_pc = request.security(sym, "60", close[1])
+    [d_c, d_pc, d_o, h_pc]
 
-[c0, p0] = getData(s0)
-[c1, p1] = getData(s1)
-[c2, p2] = getData(s2)
-[c3, p3] = getData(s3)
-[c4, p4] = getData(s4)
-[c5, p5] = getData(s5)
-[c6, p6] = getData(s6)
-[c7, p7] = getData(s7)
-[c8, p8] = getData(s8)
-[c9, p9] = getData(s9)
+[c0, p0, o0, h0] = getData(s0)
+[c1, p1, o1, h1] = getData(s1)
+[c2, p2, o2, h2] = getData(s2)
+[c3, p3, o3, h3] = getData(s3)
+[c4, p4, o4, h4] = getData(s4)
+[c5, p5, o5, h5] = getData(s5)
+[c6, p6, o6, h6] = getData(s6)
+[c7, p7, o7, h7] = getData(s7)
+[c8, p8, o8, h8] = getData(s8)
+[c9, p9, o9, h9] = getData(s9)
 
 // === Store data in arrays for looping ===
-// We use arrays to iterate through the data when populating the table.
 var symbols = array.from(s0, s1, s2, s3, s4, s5, s6, s7, s8, s9)
 prices = array.from(c0, c1, c2, c3, c4, c5, c6, c7, c8, c9)
 prev_closes = array.from(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9)
+opens = array.from(o0, o1, o2, o3, o4, o5, o6, o7, o8, o9)
+hourly_prev_closes = array.from(h0, h1, h2, h3, h4, h5, h6, h7, h8, h9)
 
 // === Create table ===
-var table t = table.new(position.top_right, 3, 11, border_width = 1)
+// 5 columns: Rank, Symbol, % Chg (Prev Day), % Chg (Open), % Chg (1H)
+var table t = table.new(position.top_right, 5, 11, border_width = 1, border_color = color.gray)
 
 // === Update table on the last bar ===
-// Updating on the last bar improves performance by avoiding redundant calculations on historical bars.
 if barstate.islast
     // Header
     table.cell(t, 0, 0, "Rank", text_color=color.white, bgcolor=color.blue)
     table.cell(t, 1, 0, "Symbol", text_color=color.white, bgcolor=color.blue)
-    table.cell(t, 2, 0, "% Change", text_color=color.white, bgcolor=color.blue)
+    table.cell(t, 2, 0, "% Chg (Day)", text_color=color.white, bgcolor=color.blue)
+    table.cell(t, 3, 0, "% Chg (Open)", text_color=color.white, bgcolor=color.blue)
+    table.cell(t, 4, 0, "% Chg (1H)", text_color=color.white, bgcolor=color.blue)
 
     // Loop through stocks and fill table
     for i = 0 to 9
         sym = array.get(symbols, i)
-        price_today = array.get(prices, i)
-        price_yday = array.get(prev_closes, i)
+        curr_price = array.get(prices, i)
 
-        // Calculate percentage change
-        change = (price_today - price_yday) / price_yday
-        change_str = str.tostring(change, format.percent)
+        // 1. % Change from Previous Day
+        yday_price = array.get(prev_closes, i)
+        chg_day = (curr_price - yday_price) / yday_price
+
+        // 2. % Change from Open
+        open_price = array.get(opens, i)
+        chg_open = (curr_price - open_price) / open_price
+
+        // 3. Hourly % Change
+        hour_ago_price = array.get(hourly_prev_closes, i)
+        chg_hour = (curr_price - hour_ago_price) / hour_ago_price
 
         // Fill table cells
-        table.cell(t, 0, i+1, str.tostring(i+1))
-        table.cell(t, 1, i+1, str.replace(sym, "NSE:", ""))
-        table.cell(t, 2, i+1, change_str, text_color = change >= 0 ? color.green : color.red)
+        table.cell(t, 0, i+1, str.tostring(i+1), text_color=color.white)
+        table.cell(t, 1, i+1, str.replace(sym, "NSE:", ""), text_color=color.white)
+
+        table.cell(t, 2, i+1, str.tostring(chg_day, format.percent), text_color = chg_day >= 0 ? color.green : color.red)
+        table.cell(t, 3, i+1, str.tostring(chg_open, format.percent), text_color = chg_open >= 0 ? color.green : color.red)
+        table.cell(t, 4, i+1, str.tostring(chg_hour, format.percent), text_color = chg_hour >= 0 ? color.green : color.red)
