@@ -1,0 +1,59 @@
+// This Pine Script® code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © AvinashC
+
+//@version=5
+indicator("Nifty Top 10 Stocks Table", overlay=true)
+
+// === Define top 10 Nifty stock symbols ===
+s0 = "NSE:RELIANCE", s1 = "NSE:HDFCBANK", s2 = "NSE:ICICIBANK", s3 = "NSE:INFY", s4 = "NSE:TCS"
+s5 = "NSE:ITC", s6 = "NSE:LT", s7 = "NSE:SBIN", s8 = "NSE:BHARTIARTL", s9 = "NSE:AXISBANK"
+
+// === Fetch data for each symbol ===
+// Note: request.security must be called at the global scope in Pine Script v5.
+// We fetch both current close and previous day's close in one call for efficiency.
+// On a lower timeframe, 'D' timeframe 'close' is the current day's price and 'close[1]' is yesterday's close.
+getData(sym) =>
+    request.security(sym, "D", [close, close[1]])
+
+[c0, p0] = getData(s0)
+[c1, p1] = getData(s1)
+[c2, p2] = getData(s2)
+[c3, p3] = getData(s3)
+[c4, p4] = getData(s4)
+[c5, p5] = getData(s5)
+[c6, p6] = getData(s6)
+[c7, p7] = getData(s7)
+[c8, p8] = getData(s8)
+[c9, p9] = getData(s9)
+
+// === Store data in arrays for looping ===
+// We use arrays to iterate through the data when populating the table.
+var symbols = array.from(s0, s1, s2, s3, s4, s5, s6, s7, s8, s9)
+prices = array.from(c0, c1, c2, c3, c4, c5, c6, c7, c8, c9)
+prev_closes = array.from(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9)
+
+// === Create table ===
+var table t = table.new(position.top_right, 3, 11, border_width = 1)
+
+// === Update table on the last bar ===
+// Updating on the last bar improves performance by avoiding redundant calculations on historical bars.
+if barstate.islast
+    // Header
+    table.cell(t, 0, 0, "Rank", text_color=color.white, bgcolor=color.blue)
+    table.cell(t, 1, 0, "Symbol", text_color=color.white, bgcolor=color.blue)
+    table.cell(t, 2, 0, "% Change", text_color=color.white, bgcolor=color.blue)
+
+    // Loop through stocks and fill table
+    for i = 0 to 9
+        sym = array.get(symbols, i)
+        price_today = array.get(prices, i)
+        price_yday = array.get(prev_closes, i)
+
+        // Calculate percentage change
+        change = (price_today - price_yday) / price_yday
+        change_str = str.tostring(change, format.percent)
+
+        // Fill table cells
+        table.cell(t, 0, i+1, str.tostring(i+1))
+        table.cell(t, 1, i+1, str.replace(sym, "NSE:", ""))
+        table.cell(t, 2, i+1, change_str, text_color = change >= 0 ? color.green : color.red)
