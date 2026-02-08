@@ -5,7 +5,6 @@
 indicator("Nifty Top 10 Stocks Table & Breadth", overlay=true)
 
 // === Inputs: Symbols and Weights ===
-// Weights are kept in inputs as requested previously, but removed from the table display.
 group_1 = "Stock 1"
 s0 = input.symbol("NSE:RELIANCE", "Symbol", group=group_1)
 w0 = input.float(9.12, "Weight (%)", group=group_1)
@@ -96,13 +95,20 @@ var table t = table.new(position.top_right, 6, 11, border_width = 1, border_colo
 
 // === Update table on the last bar ===
 if barstate.islast
+    // Header colors
+    header_bg = color.blue
+    header_text = color.white
+    // Body colors
+    body_bg = color.new(color.black, 10) // Near-solid black for contrast
+    body_text = color.white
+
     // Header
-    table.cell(t, 0, 0, "Rank", text_color=color.white, bgcolor=color.blue)
-    table.cell(t, 1, 0, "Symbol", text_color=color.white, bgcolor=color.blue)
-    table.cell(t, 2, 0, "Name", text_color=color.white, bgcolor=color.blue)
-    table.cell(t, 3, 0, "% Chg (Day)", text_color=color.white, bgcolor=color.blue)
-    table.cell(t, 4, 0, "% Chg (Open)", text_color=color.white, bgcolor=color.blue)
-    table.cell(t, 5, 0, "% Chg (1H)", text_color=color.white, bgcolor=color.blue)
+    table.cell(t, 0, 0, "Rank", text_color=header_text, bgcolor=header_bg)
+    table.cell(t, 1, 0, "Symbol", text_color=header_text, bgcolor=header_bg)
+    table.cell(t, 2, 0, "Name", text_color=header_text, bgcolor=header_bg)
+    table.cell(t, 3, 0, "% Chg (Day)", text_color=header_text, bgcolor=header_bg)
+    table.cell(t, 4, 0, "% Chg (Open)", text_color=header_text, bgcolor=header_bg)
+    table.cell(t, 5, 0, "% Chg (1H)", text_color=header_text, bgcolor=header_bg)
 
     // Loop through stocks and fill table
     for i = 0 to 9
@@ -123,10 +129,10 @@ if barstate.islast
         chg_hour = (curr_price - hour_ago_price) / hour_ago_price
 
         // Fill table cells
-        table.cell(t, 0, i+1, str.tostring(i+1), text_color=color.white)
-        table.cell(t, 1, i+1, str.replace(sym, "NSE:", ""), text_color=color.white)
-        table.cell(t, 2, i+1, name, text_color=color.white, text_halign=text.align_left)
+        table.cell(t, 0, i+1, str.tostring(i+1), text_color=body_text, bgcolor=body_bg)
+        table.cell(t, 1, i+1, str.replace(sym, "NSE:", ""), text_color=body_text, bgcolor=body_bg)
+        table.cell(t, 2, i+1, name, text_color=body_text, text_halign=text.align_left, bgcolor=body_bg)
 
-        table.cell(t, 3, i+1, str.tostring(chg_day, format.percent), text_color = chg_day >= 0 ? color.green : color.red)
-        table.cell(t, 4, i+1, str.tostring(chg_open, format.percent), text_color = chg_open >= 0 ? color.green : color.red)
-        table.cell(t, 5, i+1, str.tostring(chg_hour, format.percent), text_color = chg_hour >= 0 ? color.green : color.red)
+        table.cell(t, 3, i+1, str.tostring(chg_day, format.percent), text_color = chg_day >= 0 ? color.green : color.red, bgcolor=body_bg)
+        table.cell(t, 4, i+1, str.tostring(chg_open, format.percent), text_color = chg_open >= 0 ? color.green : color.red, bgcolor=body_bg)
+        table.cell(t, 5, i+1, str.tostring(chg_hour, format.percent), text_color = chg_hour >= 0 ? color.green : color.red, bgcolor=body_bg)
