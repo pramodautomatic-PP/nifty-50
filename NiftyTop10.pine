@@ -47,24 +47,23 @@ w9 = input.float(3.31, "Weight (%)", group=group_10)
 
 // === Fetch data for each symbol ===
 getData(sym) =>
-    [d_c, d_pc, d_o, desc] = request.security(sym, "D", [close, close[1], open, syminfo.description])
+    [d_c, d_pc, d_o] = request.security(sym, "D", [close, close[1], open])
     h_pc = request.security(sym, "60", close[1])
-    [d_c, d_pc, d_o, h_pc, desc]
+    [d_c, d_pc, d_o, h_pc]
 
-[c0, p0, o0, h0, d0] = getData(s0)
-[c1, p1, o1, h1, d1] = getData(s1)
-[c2, p2, o2, h2, d2] = getData(s2)
-[c3, p3, o3, h3, d3] = getData(s3)
-[c4, p4, o4, h4, d4] = getData(s4)
-[c5, p5, o5, h5, d5] = getData(s5)
-[c6, p6, o6, h6, d6] = getData(s6)
-[c7, p7, o7, h7, d7] = getData(s7)
-[c8, p8, o8, h8, d8] = getData(s8)
-[c9, p9, o9, h9, d9] = getData(s9)
+[c0, p0, o0, h0] = getData(s0)
+[c1, p1, o1, h1] = getData(s1)
+[c2, p2, o2, h2] = getData(s2)
+[c3, p3, o3, h3] = getData(s3)
+[c4, p4, o4, h4] = getData(s4)
+[c5, p5, o5, h5] = getData(s5)
+[c6, p6, o6, h6] = getData(s6)
+[c7, p7, o7, h7] = getData(s7)
+[c8, p8, o8, h8] = getData(s8)
+[c9, p9, o9, h9] = getData(s9)
 
 // === Store data in arrays ===
 symbols = array.from(s0, s1, s2, s3, s4, s5, s6, s7, s8, s9)
-names = array.from(d0, d1, d2, d3, d4, d5, d6, d7, d8, d9)
 prices = array.from(c0, c1, c2, c3, c4, c5, c6, c7, c8, c9)
 prev_closes = array.from(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9)
 opens = array.from(o0, o1, o2, o3, o4, o5, o6, o7, o8, o9)
@@ -90,8 +89,8 @@ plotshape(is_80_pos, "80% Positive Breadth", shape.triangleup, location.belowbar
 plotshape(is_80_neg, "80% Negative Breadth", shape.triangledown, location.abovebar, color.new(color.red, 0), size=size.small)
 
 // === Create table ===
-// 6 columns: Rank, Symbol, Name, % Chg (Day), % Chg (Open), % Chg (1H)
-var table t = table.new(position.top_right, 6, 11, border_width = 1, border_color = color.gray)
+// Compact table: Symbol, % Chg (Day), % Chg (Open), % Chg (1H)
+var table t = table.new(position.top_right, 4, 11, border_width = 1, border_color = color.gray)
 
 // === Update table on the last bar ===
 if barstate.islast
@@ -99,21 +98,19 @@ if barstate.islast
     header_bg = color.blue
     header_text = color.white
     // Body colors
-    body_bg = color.new(color.black, 10) // Near-solid black for contrast
+    body_bg = color.new(color.black, 10)
     body_text = color.white
+    t_size = size.small
 
     // Header
-    table.cell(t, 0, 0, "Rank", text_color=header_text, bgcolor=header_bg)
-    table.cell(t, 1, 0, "Symbol", text_color=header_text, bgcolor=header_bg)
-    table.cell(t, 2, 0, "Name", text_color=header_text, bgcolor=header_bg)
-    table.cell(t, 3, 0, "% Chg (Day)", text_color=header_text, bgcolor=header_bg)
-    table.cell(t, 4, 0, "% Chg (Open)", text_color=header_text, bgcolor=header_bg)
-    table.cell(t, 5, 0, "% Chg (1H)", text_color=header_text, bgcolor=header_bg)
+    table.cell(t, 0, 0, "Symbol", text_color=header_text, bgcolor=header_bg, text_size=t_size)
+    table.cell(t, 1, 0, "% Chg (Day)", text_color=header_text, bgcolor=header_bg, text_size=t_size)
+    table.cell(t, 2, 0, "% Chg (Open)", text_color=header_text, bgcolor=header_bg, text_size=t_size)
+    table.cell(t, 3, 0, "% Chg (1H)", text_color=header_text, bgcolor=header_bg, text_size=t_size)
 
     // Loop through stocks and fill table
     for i = 0 to 9
         sym = array.get(symbols, i)
-        name = array.get(names, i)
         curr_price = array.get(prices, i)
 
         // 1. % Change from Previous Day
@@ -129,10 +126,7 @@ if barstate.islast
         chg_hour = (curr_price - hour_ago_price) / hour_ago_price
 
         // Fill table cells
-        table.cell(t, 0, i+1, str.tostring(i+1), text_color=body_text, bgcolor=body_bg)
-        table.cell(t, 1, i+1, str.replace(sym, "NSE:", ""), text_color=body_text, bgcolor=body_bg)
-        table.cell(t, 2, i+1, name, text_color=body_text, text_halign=text.align_left, bgcolor=body_bg)
-
-        table.cell(t, 3, i+1, str.tostring(chg_day, format.percent), text_color = chg_day >= 0 ? color.green : color.red, bgcolor=body_bg)
-        table.cell(t, 4, i+1, str.tostring(chg_open, format.percent), text_color = chg_open >= 0 ? color.green : color.red, bgcolor=body_bg)
-        table.cell(t, 5, i+1, str.tostring(chg_hour, format.percent), text_color = chg_hour >= 0 ? color.green : color.red, bgcolor=body_bg)
+        table.cell(t, 0, i+1, str.replace(sym, "NSE:", ""), text_color=body_text, bgcolor=body_bg, text_size=t_size)
+        table.cell(t, 1, i+1, str.tostring(chg_day, format.percent), text_color = chg_day >= 0 ? color.green : color.red, bgcolor=body_bg, text_size=t_size)
+        table.cell(t, 2, i+1, str.tostring(chg_open, format.percent), text_color = chg_open >= 0 ? color.green : color.red, bgcolor=body_bg, text_size=t_size)
+        table.cell(t, 3, i+1, str.tostring(chg_hour, format.percent), text_color = chg_hour >= 0 ? color.green : color.red, bgcolor=body_bg, text_size=t_size)
