@@ -2,7 +2,7 @@
 // © AvinashC
 
 //@version=5
-indicator("Nifty Top 10 Stocks Table & Breadth", overlay=true)
+indicator("Nifty Top 10 Stocks Table & Breadth", overlay=true, calc_on_every_tick = true)
 
 // === Inputs: Symbols and Weights ===
 group_1 = "Stock 1"
@@ -107,10 +107,10 @@ if barstate.islast
     body_text = color.white
     t_size = size.small
 
-    table.cell(t, 0, 0, "Symbol", text_color=header_text, bgcolor=header_bg, text_size=t_size)
-    table.cell(t, 1, 0, "% Chg (Day)", text_color=header_text, bgcolor=header_bg, text_size=t_size)
-    table.cell(t, 2, 0, "%change from Open", text_color=header_text, bgcolor=header_bg, text_size=t_size)
-    table.cell(t, 3, 0, "%change Hrly", text_color=header_text, bgcolor=header_bg, text_size=t_size)
+    table.cell(t, 0, 0, "Symbol", text_color=header_text, bgcolor=header_bg, text_size=size.tiny, text_halign=text.align_center)
+    table.cell(t, 1, 0, "% Chg (Day)", text_color=header_text, bgcolor=header_bg, text_size=size.tiny, text_halign=text.align_center)
+    table.cell(t, 2, 0, "%change from\nOpen", text_color=header_text, bgcolor=header_bg, text_size=size.tiny, text_halign=text.align_center)
+    table.cell(t, 3, 0, "%change\nHrly", text_color=header_text, bgcolor=header_bg, text_size=size.tiny, text_halign=text.align_center)
 
     for i = 0 to 9
         sym = array.get(symbols, i)
@@ -122,7 +122,7 @@ if barstate.islast
         hour_ago_price = array.get(hourly_prev_closes, i)
         chg_hour = not na(curr_price) and not na(hour_ago_price) and hour_ago_price != 0 ? (curr_price - hour_ago_price) / hour_ago_price : na
 
-        table.cell(t, 0, i+1, str.replace(sym, "NSE:", ""), text_color=body_text, bgcolor=body_bg, text_size=t_size)
-        table.cell(t, 1, i+1, f_get_text(chg_day), text_color = f_get_color(chg_day), bgcolor=body_bg, text_size=t_size)
-        table.cell(t, 2, i+1, f_get_text(chg_open), text_color = f_get_color(chg_open), bgcolor=body_bg, text_size=t_size)
-        table.cell(t, 3, i+1, f_get_text(chg_hour), text_color = f_get_color(chg_hour), bgcolor=body_bg, text_size=t_size)
+        table.cell(t, 0, i+1, str.replace(sym, "NSE:", ""), text_color=body_text, bgcolor=body_bg, text_size=t_size, text_halign=text.align_center)
+        table.cell(t, 1, i+1, f_get_text(chg_day), text_color = f_get_color(chg_day), bgcolor=body_bg, text_size=t_size, text_halign=text.align_center)
+        table.cell(t, 2, i+1, f_get_text(chg_open), text_color = f_get_color(chg_open), bgcolor=body_bg, text_size=t_size, text_halign=text.align_center)
+        table.cell(t, 3, i+1, f_get_text(chg_hour), text_color = f_get_color(chg_hour), bgcolor=body_bg, text_size=t_size, text_halign=text.align_center)
