@@ -51,8 +51,14 @@ f_get_color(val) => na(val) ? color.gray : (val >= 0 ? color.green : color.red)
 
 // === Fetch data for each symbol ===
 getData(sym) =>
-    [d_c, d_pc, d_o] = request.security(sym, "D", [close, close[1], open], gaps = barmerge.gaps_off, lookahead = barmerge.lookahead_on)
-    h_pc = request.security(sym, "60", close[1], gaps = barmerge.gaps_off, lookahead = barmerge.lookahead_on)
+    // Today's Daily close (developing) and open
+    [d_c, d_o] = request.security(sym, "D", [close, open], gaps = barmerge.gaps_off, lookahead = barmerge.lookahead_on)
+    // Yesterday's Daily close (Reference price for Daily Change)
+    // Using lookahead_off with 'close' returns the last COMPLETED daily bar.
+    d_pc = request.security(sym, "D", close, gaps = barmerge.gaps_off, lookahead = barmerge.lookahead_off)
+    // Previous Hourly close (Reference for Hourly Change)
+    // Using lookahead_off with 'close' returns the last COMPLETED 60-minute bar.
+    h_pc = request.security(sym, "60", close, gaps = barmerge.gaps_off, lookahead = barmerge.lookahead_off)
     [d_c, d_pc, d_o, h_pc]
 
 [c0, p0, o0, h0] = getData(s0)
