@@ -2,7 +2,7 @@
 // © AvinashC
 
 //@version=5
-indicator("Nifty Top 10 Stocks Table & Breadth", overlay=true, calc_on_every_tick = true)
+indicator("Nifty Top 10 Stocks Table & Breadth", overlay=true)
 
 // === Inputs: Symbols and Weights ===
 group_1 = "Stock 1"
